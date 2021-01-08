@@ -29,9 +29,7 @@ class index extends Pagination {
             ];
         }
 
-        $jsonArray[] = [
-            'pagination' => $this->pagination
-        ];
+        $jsonArray['pagination'] = $this->pagination;
 
         echo json_encode($jsonArray);
         mysqli_close($connect);
