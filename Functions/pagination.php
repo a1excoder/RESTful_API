@@ -7,7 +7,7 @@ class Pagination {
     public $page;
     public $pagination = array();
 
-    public function getPagination($connect, $per_page, $page, $from) {
+    public function getPagination($connect, $per_page, $from) {
 
         if (isset($_GET['page'])) {
             $this->page = (int) $_GET['page'];
