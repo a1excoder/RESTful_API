@@ -18,7 +18,7 @@ class index extends Pagination {
         $jsonArray = array();
 
         $this->getPagination($connect, $per_page, $from);
-        
+
 
         while ($post = mysqli_fetch_assoc($this->query)) {
             $jsonArray[] = [
@@ -42,7 +42,7 @@ class index extends Pagination {
     public function viewPost(int $id) {
         $connect = mysqli_connect($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
 
-        $query = mysqli_query($connect, "SELECT * FROM `posts` WHERE `id` = {$id}");
+        $query = mysqli_query($connect, "SELECT * FROM `posts` WHERE `id` = {(int) $id}");
         $post = mysqli_fetch_assoc($query);
         $jsonArray['post'] = [
             'post_id' => (int) $post['id'],
