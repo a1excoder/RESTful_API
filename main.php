@@ -17,9 +17,8 @@ class index extends Pagination {
 
         $jsonArray = array();
 
-        $this->getPagination($connect, $per_page, $page, $from);
-
-
+        $this->getPagination($connect, $per_page, $from);
+        
 
         while ($post = mysqli_fetch_assoc($this->query)) {
             $jsonArray[] = [
