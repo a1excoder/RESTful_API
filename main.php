@@ -1,8 +1,10 @@
 <?php
 header('Content-type: application/json');
 
+include_once( __DIR__ . '/Functions/pagination.php' );
 
-class index {
+
+class index extends Pagination {
 
     private $connect = ['127.0.0.1', 'root', '', 'rest_api'];
 
@@ -11,43 +13,15 @@ class index {
 
         $per_page = 6;
         $page = 1;
-
-        if (isset($_GET['page'])) {
-            $page = (int) $_GET['page'];
-        }
-
-        $total_count_q = mysqli_query($connect, "SELECT COUNT(`id`) AS `total_count` FROM `posts`");
-        $total_count = mysqli_fetch_assoc($total_count_q);
-        $total_count = $total_count['total_count'];
-        $total_pages = ceil($total_count / $per_page);
-
-        if ($page <= 1 || $page > $total_pages) {
-            $page = 1;
-        }
-
-        $offset = ($per_page * $page) - $per_page;
-
-        $query = mysqli_query($connect, "SELECT * FROM `posts` ORDER BY `id` DESC LIMIT {$offset}, {$per_page}");
+        $from = 'posts';
 
         $jsonArray = array();
 
-        for ($onePage = 1; $onePage <= $total_pages; $onePage++) {
-            if ($onePage == $page) {
-                $status = true;
-            } else {
-                $status = false;
-            }
+        $this->getPagination($connect, $per_page, $page, $from);
 
-            $jsonArray['pagination'][] = [
-                'page' => [
-                    'id' => $onePage,
-                    'status' => $status
-                ]
-            ];
 
-        }
 
-        while ($post = mysqli_fetch_assoc($query)) {
+        while ($post = mysqli_fetch_assoc($this->query)) {
             $jsonArray[] = [
                 'id' => (int) $post['id'],
                 'title' => $post['title'],
@@ -55,6 +29,10 @@ class index {
                 'query' => mb_substr($post['query'], 0, 200) . "..."
             ];
         }
+
+        $jsonArray[] = [
+            'pagination' => $this->pagination
+        ];
 
         echo json_encode($jsonArray);
         mysqli_close($connect);
@@ -84,5 +62,5 @@ class index {
 }
 
 $new = new index();
-//$new->viewPosts();
-$new->viewPost($_GET['id']);
+$new->viewPosts();
+//$new->viewPost($_GET['id']);
