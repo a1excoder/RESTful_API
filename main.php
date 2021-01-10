@@ -1,7 +1,8 @@
 <?php
 header('Content-type: application/json');
 
-include_once( __DIR__ . '/Functions/pagination.php' );
+include_once __DIR__ . '/Functions/pagination.php';
+include_once __DIR__ . '/Routes/routes.php';
 
 
 class index extends Pagination {
@@ -9,18 +10,15 @@ class index extends Pagination {
     private $connect = ['127.0.0.1', 'root', '', 'rest_api'];
 
     public function viewPosts() {
-        $connect = mysqli_connect($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+        $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
 
-        $per_page = 6;
-        $page = 1;
-        $from = 'posts';
+        $this->getPagination($connect, 6, 'posts');
 
         $jsonArray = array();
+        $jsonArray[]['pagination'] = $this->pagination;
 
-        $this->getPagination($connect, $per_page, $from);
 
-
-        while ($post = mysqli_fetch_assoc($this->query)) {
+        while ($post = $this->query->fetch_assoc()) {
             $jsonArray[] = [
                 'id' => (int) $post['id'],
                 'title' => $post['title'],
@@ -29,19 +27,17 @@ class index extends Pagination {
             ];
         }
 
-        $jsonArray['pagination'] = $this->pagination;
-
         echo json_encode($jsonArray);
-        mysqli_close($connect);
+        $connect->close();
 
     }
 
 
     public function viewPost(int $id) {
-        $connect = mysqli_connect($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+        $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
 
-        $query = mysqli_query($connect, "SELECT * FROM `posts` WHERE `id` = {(int) $id}");
-        $post = mysqli_fetch_assoc($query);
+        $post = $connect->query("SELECT * FROM `posts` WHERE `id` = {$id}")->fetch_assoc();
+
         $jsonArray['post'] = [
             'post_id' => (int) $post['id'],
             'datetime' => $post['datetime'],
@@ -51,7 +47,7 @@ class index extends Pagination {
         ];
 
         echo json_encode($jsonArray);
-        mysqli_close($connect);
+        $connect->close();
 
     }
 
@@ -59,5 +55,6 @@ class index extends Pagination {
 }
 
 $new = new index();
+
 $new->viewPosts();
 //$new->viewPost($_GET['id']);
