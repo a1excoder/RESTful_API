@@ -1,9 +1,11 @@
 <?php
 header('Content-type: application/json');
 
-include_once __DIR__ . '/Functions/pagination.php';
-include_once __DIR__ . '/Functions/Routes.php';
+include_once __DIR__ . '/core/pagination.php';
+include_once __DIR__ . '/core/Routes.php';
 
+use core\Routes\Routes as Route;
+use core\Pagination\application as Pagination;
 
 
 class index extends Pagination
@@ -61,22 +63,22 @@ class index extends Pagination
 
 
 
-Routes::route('/', function ()
+Route::route('/', function ()
 {
     $new = new index();
     $new->viewPosts();
 });
 
-Routes::route('/page/(\w+)', function (int $page)
+Route::route('/page/(\w+)', function (int $page)
 {
     $new = new index();
     $new->viewPosts($page);
 });
 
-Routes::route('/post/(\w+)', function (int $id)
+Route::route('/post/(\w+)', function (int $id)
 {
     $new = new index();
     $new->viewPost($id);
 });
 
-Routes::execute($_SERVER['REQUEST_URI']);
+Route::execute($_SERVER['REQUEST_URI']);
