@@ -4,8 +4,8 @@ header('Content-type: application/json');
 include_once __DIR__ . '/core/pagination.php';
 include_once __DIR__ . '/core/Routes.php';
 
-use core\Routes\Routes as Route;
-use core\Pagination\application as Pagination;
+use core\Routes as Route;
+use core\Pagination as Pagination;
 
 
 class index extends Pagination
