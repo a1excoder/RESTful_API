@@ -1,8 +1,8 @@
 <?php
 
-namespace core\Pagination;
+namespace core;
 
-class application
+class Pagination
 {
 
     protected $query;
