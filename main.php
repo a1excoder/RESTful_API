@@ -5,7 +5,7 @@ include_once __DIR__ . '/core/pagination.php';
 include_once __DIR__ . '/core/Routes.php';
 
 use core\Routes as Route;
-use core\Pagination as Pagination;
+use core\Pagination;
 
 
 class index extends Pagination
