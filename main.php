@@ -1,8 +1,7 @@
 <?php
 header('Content-type: application/json');
 
-include_once __DIR__ . '/core/pagination.php';
-include_once __DIR__ . '/core/Routes.php';
+require_once __DIR__ . '/config.php';
 
 use core\Routes as Router;
 use core\Pagination as Pagination;
@@ -64,22 +63,22 @@ class index extends Pagination
             ];
 
             echo json_encode($jsonArray);
-            $connect->close();
+
         }
 
+        $connect->close();
     }
 
 
     public function addPost()
     {
-        $METHOD = $_SERVER['REQUEST_METHOD'];
 
-        if ($METHOD == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
             $data = $_POST;
 
             if (empty($data['title']) || empty($data['category']) || empty($data['query'])) {
-                http_response_code(406);
+                http_response_code(204);
                 echo json_encode([
                     'status' => false
                 ]);
@@ -88,9 +87,11 @@ class index extends Pagination
                 $connect->query("INSERT INTO `posts` (`id`, `title`, `datetime`, `category`, `query`) VALUES ".
                     "(NULL, '{$data['title']}', current_timestamp(), '{$data['category']}', '{$data['query']}'); ");
 
+                http_response_code(201);
                 echo json_encode([
                     'status' => true,
-                    'message' => 'New post has been created'
+                    'message' => 'New post has been created',
+                    'post_id' => $connect->insert_id
                 ]);
             }
 
@@ -100,6 +101,60 @@ class index extends Pagination
             echo json_encode([
                 'status' => false,
                 'message' => 'This is not a POST method'
+            ]);
+        }
+
+    }
+
+
+    public function editPost(int $id)
+    {
+
+        if ($_SERVER['REQUEST_METHOD'] == 'PATCH') {
+            $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+
+            $checkValidPost = $connect->query("SELECT `id` FROM `posts` WHERE `id` = '{$id}'");
+            if (!$checkValidPost->fetch_assoc()) {
+
+                http_response_code(405);
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'Post with this id not found'
+                ]);
+
+            } else {
+
+                $data = file_get_contents('php://input');
+                $data = json_decode($data, true);
+
+                if (empty($data["title"]) || empty($data["category"]) || empty($data["query"])) {
+                    http_response_code(204);
+                    echo json_encode([
+                        'status' => false
+                    ]);
+
+                } else {
+
+                    $data = [htmlspecialchars($data['title']), htmlspecialchars($data['category']), htmlspecialchars($data['query'])];
+                    $connect->query("UPDATE `posts` SET `title` = '{$data[0]}', `category` = '{$data[1]}', ".
+                        "`query` = '{$data[2]}' WHERE `posts`.`id` = $id ");
+
+                    http_response_code(202);
+                    echo json_encode([
+                        'status' => true,
+                        'post_id' => $id
+                    ]);
+                }
+
+            }
+
+            $connect->close();
+
+        } else {
+            http_response_code(405);
+            echo json_encode([
+                'status' => false,
+                'message' => 'This is not a PATCH method'
             ]);
         }
 
@@ -117,6 +172,11 @@ Router::route('/', function () {
 Router::route('/post/new', function () {
     $new = new index();
     $new->addPost();
+});
+
+Router::route('/post/update/(\w+)', function (int $id) {
+    $new = new index();
+    $new->editPost($id);
 });
 
 Router::route('/page/(\w+)', function (int $page) {
