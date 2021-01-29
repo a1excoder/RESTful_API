@@ -81,7 +81,7 @@ class index extends Pagination
             if (empty($data['title']) || empty($data['category']) || empty($data['query'])) {
                 http_response_code(406);
                 echo json_encode([
-                    'status' => false,
+                    'status' => false
                 ]);
 
             } else {
