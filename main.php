@@ -87,7 +87,6 @@ class index extends Pagination
             } else {
                 $connect->query("INSERT INTO `posts` (`id`, `title`, `datetime`, `category`, `query`) VALUES ".
                     "(NULL, '{$data['title']}', current_timestamp(), '{$data['category']}', '{$data['query']}'); ");
-                $connect->close();
 
                 echo json_encode([
                     'status' => true,
@@ -95,6 +94,7 @@ class index extends Pagination
                 ]);
             }
 
+            $connect->close();
         } else {
             http_response_code(405);
             echo json_encode([
