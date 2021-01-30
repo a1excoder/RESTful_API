@@ -10,11 +10,27 @@ use core\Pagination as Pagination;
 class index extends Pagination
 {
 
-    private $connect = ['127.0.0.1', 'root', '', 'rest_api'];
+    private $host = '127.0.0.1';
+    private $user = 'root';
+    private $password = '';
+    private $database = 'rest_api';
+
+    private function getConnect()
+    {
+        $connect = new mysqli(
+            $this->host,
+            $this->user,
+            $this->password,
+            $this->database
+        );
+
+
+        return $connect;
+    }
 
     public function viewPosts(int $page = 1)
     {
-        $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+        $connect = $this->getConnect();
 
         $this->getPagination($connect, 6, 'posts', $page);
 
@@ -39,7 +55,7 @@ class index extends Pagination
 
     public function viewPost(int $id)
     {
-        $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+        $connect = $this->getConnect();
 
         $post = $connect->query("SELECT * FROM `posts` WHERE `id` = {$id}")->fetch_assoc();
 
@@ -74,7 +90,9 @@ class index extends Pagination
     {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+
+            $connect = $this->getConnect();
+
             $data = $_POST;
 
             if (empty($data['title']) || empty($data['category']) || empty($data['query'])) {
@@ -111,7 +129,8 @@ class index extends Pagination
     {
 
         if ($_SERVER['REQUEST_METHOD'] == 'PATCH') {
-            $connect = new mysqli($this->connect[0], $this->connect[1], $this->connect[2], $this->connect[3]);
+
+            $connect = $this->getConnect();
 
             $checkValidPost = $connect->query("SELECT `id` FROM `posts` WHERE `id` = '{$id}'");
             if (!$checkValidPost->fetch_assoc()) {
@@ -161,6 +180,45 @@ class index extends Pagination
     }
 
 
+    public function deletePost(int $id)
+    {
+
+        if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+
+            $connect = $this->getConnect();
+            $checkValidPost = $connect->query("SELECT `id` FROM `posts` WHERE `id` = '{$id}'");
+
+            if (!$checkValidPost->fetch_assoc()) {
+
+                http_response_code(204);
+                echo json_encode([
+                    'status' => false
+                ]);
+
+            } else {
+                http_response_code(200);
+                $connect->query("DELETE FROM `posts` WHERE `id` = '{$id}'");
+                echo json_encode([
+                    'status' => true,
+                    'message' => 'Post with id '.$id.' deleted'
+                ]);
+
+            }
+
+
+        } else {
+
+            http_response_code(405);
+            echo json_encode([
+                'status' => false,
+                'message' => 'This is not a DELETE method'
+            ]);
+
+        }
+
+    }
+
+
 }
 
 
@@ -172,6 +230,11 @@ Router::route('/', function () {
 Router::route('/post/new', function () {
     $new = new index();
     $new->addPost();
+});
+
+Router::route('/post/delete/(\w+)', function (int $id) {
+    $new = new index();
+    $new->deletePost($id);
 });
 
 Router::route('/post/update/(\w+)', function (int $id) {
@@ -191,3 +254,4 @@ Router::route('/post/(\w+)', function (int $id) {
 
 
 Router::execute($_SERVER['REQUEST_URI']);
+
