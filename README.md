@@ -1,3 +1,3 @@
 # rest_api
 
-<h3>Bad decision api appication</h3>
+<h3>Bad decision api application</h3>
