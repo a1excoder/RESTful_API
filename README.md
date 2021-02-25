@@ -1,4 +1,4 @@
-# My first api application on PHP
+# My first api application on native PHP
 
 ## How to start
 
