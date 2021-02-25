@@ -4,6 +4,7 @@
 
 
 ```bash
+migrate database to mysql server
 php -S localhost:800 main.php
 ```
 
