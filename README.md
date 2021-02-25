@@ -4,7 +4,7 @@
 
 
 ```bash
-migrate database to mysql server
+migrate database file 'rest_api.sql' to mysql server
 php -S localhost:800 main.php
 ```
 
