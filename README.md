@@ -6,7 +6,6 @@
 ```
 migrate database file 'rest_api.sql' to mysql server
 php -S localhost:800 main.php
-\/|||||||-----------|||||||\/
 if you use linux -> sudo php -S localhost:800 main.php
 ```
 
